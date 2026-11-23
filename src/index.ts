@@ -44,6 +44,24 @@ app.post("/memos", (req, res) => {
   res.status(201).json(newMemo);
 });
 
+app.patch("/memos/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const memo = FAKE_MEMOS.find((memo) => memo.id === id);
+
+  if (!memo) {
+    res.status(404).json({ message: "메모를 찾을 수 없습니다." });
+    return;
+  }
+
+  const { title, content, imageUrl } = req.body;
+
+  if (title !== undefined) memo.title = title;
+  if (content !== undefined) memo.content = content;
+  if (imageUrl !== undefined) memo.imageUrl = imageUrl;
+
+  res.json(memo);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
