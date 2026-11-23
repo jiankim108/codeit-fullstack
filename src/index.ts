@@ -11,6 +11,18 @@ app.get("/memos", (req, res) => {
   res.json(FAKE_MEMOS);
 });
 
+app.get("/memos/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const memo = FAKE_MEMOS.find((memo) => memo.id === id);
+
+  if (!memo) {
+    res.status(404).json({ message: "메모를 찾을 수 없습니다." });
+    return;
+  }
+
+  res.json(memo);
+});
+
 app.post("/memos", (req, res) => {
   const { userId, title, content, imageUrl } = req.body;
 
