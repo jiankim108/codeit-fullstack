@@ -1,5 +1,5 @@
 import express from "express";
-import { FAKE_MEMOS } from "./fake-database";
+import { FAKE_MEMOS } from "@/fake-database";
 
 const app = express();
 const port = 3000;
