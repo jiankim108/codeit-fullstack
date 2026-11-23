@@ -62,6 +62,19 @@ app.patch("/memos/:id", (req, res) => {
   res.json(memo);
 });
 
+app.delete("/memos/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const index = FAKE_MEMOS.findIndex((memo) => memo.id === id);
+
+  if (index === -1) {
+    res.status(404).json({ message: "메모를 찾을 수 없습니다." });
+    return;
+  }
+
+  FAKE_MEMOS.splice(index, 1);
+  res.sendStatus(204);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
