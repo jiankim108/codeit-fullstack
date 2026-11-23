@@ -16,7 +16,7 @@ Express 5 + TypeScript 백엔드 프로젝트 (메모 서비스).
 
 - `src/index.ts` — 앱 진입점
 - `src/types.ts` — 공용 타입 (`UserType`, `MemoRecordType`)
-- `src/fake-databse.ts` — 인메모리 가짜 데이터 (`FAKE_USERS`, `FAKE_MEMOS`). 실제 DB 없음. 파일명 오타(`databse`)는 기존 import가 있으니 임의로 바꾸지 말 것.
+- `src/fake-database.ts` — 인메모리 가짜 데이터 (`FAKE_USERS`, `FAKE_MEMOS`). 실제 DB 없음.
 
 ## 코드 규칙
 

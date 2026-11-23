@@ -1,10 +1,11 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
+import { FAKE_MEMOS } from "./fake-database";
 
 const app = express();
 const port = 3000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+app.get("/memos", (req, res) => {
+  res.json(FAKE_MEMOS);
 });
 
 app.listen(port, () => {
