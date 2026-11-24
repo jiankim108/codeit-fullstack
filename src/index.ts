@@ -3,8 +3,7 @@ import express, { NextFunction, Request, Response } from "express";
 import { authRouter } from "@/auth/auth-router";
 import { prisma } from "@/db";
 import { isFilledString, sendError } from "@/http";
-import { toDateString, toMemoResponse, withUsername } from "@/memo-response";
-import { readValidToken } from "@/token";
+import { toMemoResponse, withUsername } from "@/memo-response";
 
 const app = express();
 // 기본 3002. (3000은 프론트 Next.js, 3001은 프론트 프로젝트 안의 예전 서버)
@@ -173,27 +172,8 @@ app.delete("/memos/:id", async (req, res) => {
 // 인증
 // ---------------------------------------------------------------------------
 
-// 회원가입(POST /auth/signup)과 로그인(POST /auth/login)은 src/auth/auth-router.ts에 있어요.
-
-// GET /me  header: Authorization: Bearer <token> → 내 정보 (비밀번호 제외)
-app.get("/me", async (req, res) => {
-  const token = (req.headers.authorization ?? "").replace("Bearer ", "");
-  // 토큰 안의 userId가 DB에 있을 수 없는 값이면(예: 다른 서버에서 받은 토큰) 로그인 안 된 것으로 봐요.
-  const userId = parseId(readValidToken(token)?.userId);
-
-  const user =
-    userId === null
-      ? null
-      : await prisma.user.findUnique({
-          where: { id: userId },
-          select: { id: true, email: true, username: true, createdAt: true },
-        });
-  if (!user) {
-    return sendError(res, 401, "UNAUTHORIZED", "로그인이 필요해요.");
-  }
-
-  res.json({ ...user, createdAt: toDateString(user.createdAt) });
-});
+// 회원가입(POST /auth/signup), 로그인(POST /auth/login), 내 정보(GET /auth/me)는
+// src/auth/auth-router.ts에 있어요.
 
 // 에러 처리: 핸들러에서 예상 못 한 에러(예: DB가 꺼져 있음)가 나면 여기로 와요.
 // Express 5는 async 핸들러의 에러도 자동으로 여기로 보내 줘요.

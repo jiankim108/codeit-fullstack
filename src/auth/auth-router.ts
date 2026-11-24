@@ -1,7 +1,7 @@
 // 라우터: 요청이 올바른지 검사하고, 문제가 없으면 서비스에 일을 맡겨요.
 // index.ts에서 app.use("/auth", authRouter)로 연결해서 주소 앞에 /auth가 붙어요.
 import { Router } from "express";
-import { createUser, login } from "@/auth/auth-service";
+import { createUser, getMe, login } from "@/auth/auth-service";
 import { isFilledString, sendError } from "@/http";
 
 // 프론트(lib/sign-up-schema.ts)와 같은 규칙이에요.
@@ -79,7 +79,7 @@ authRouter.post("/signup", async (req, res) => {
   res.sendStatus(201);
 });
 
-// POST /auth/login  body: { email, password } → { token } (토큰 1개)
+// POST /auth/login  body: { email, password } → { token } (JWT 액세스 토큰 1개, 15초 뒤 만료)
 authRouter.post("/login", async (req, res) => {
   const { email, password } = req.body ?? {};
 
@@ -105,4 +105,17 @@ authRouter.post("/login", async (req, res) => {
   }
 
   res.json({ token });
+});
+
+// GET /auth/me  header: Authorization: Bearer <token> → 내 정보 (비밀번호 제외)
+authRouter.get("/me", async (req, res) => {
+  // "Bearer 토큰" 모양에서 토큰만 꺼내요.
+  const token = (req.headers.authorization ?? "").replace("Bearer ", "");
+
+  const me = await getMe(token);
+  if (!me) {
+    return sendError(res, 401, "UNAUTHORIZED", "로그인이 필요해요.");
+  }
+
+  res.json(me);
 });
