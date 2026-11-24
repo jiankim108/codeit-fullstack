@@ -14,7 +14,10 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "practice:migrate": "prisma migrate dev --config practice/prisma.config.ts",
+    "practice:studio": "prisma studio --config practice/prisma.config.ts",
+    "practice:reset": "prisma migrate reset --config practice/prisma.config.ts"
   },
   "keywords": [],
   "author": "",
