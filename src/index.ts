@@ -4,6 +4,7 @@ import { authRouter } from "@/auth/auth-router";
 import { prisma } from "@/db";
 import { isFilledString, sendError } from "@/http";
 import { toDateString, toMemoResponse, withUsername } from "@/memo-response";
+import { verifyPassword } from "@/password";
 import { createToken, readValidToken } from "@/token";
 
 const app = express();
@@ -188,8 +189,9 @@ app.post("/login", async (req, res) => {
     );
   }
 
+  // DB에는 암호화된 비밀번호가 있어서 ===로 비교할 수 없어요. bcrypt로 비교해요.
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || user.password !== password) {
+  if (!user || !(await verifyPassword(password, user.password))) {
     return sendError(
       res,
       401,

@@ -3,17 +3,22 @@
 // src/fake-database.ts의 사용자와 메모를 DB에 넣어요.
 import { prisma } from "../src/db";
 import { FAKE_MEMOS, FAKE_USERS } from "../src/fake-database";
+import { hashPassword } from "../src/password";
 
 const main = async () => {
   // 지우고 다시 넣어요. 메모가 사용자를 가리키니까 메모부터 지워요.
   await prisma.memo.deleteMany();
   await prisma.user.deleteMany();
 
+  // 시드 사용자 비밀번호도 암호화해서 넣어야 로그인할 수 있어요.
   await prisma.user.createMany({
-    data: FAKE_USERS.map((user) => ({
-      ...user,
-      createdAt: new Date(user.createdAt),
-    })),
+    data: await Promise.all(
+      FAKE_USERS.map(async (user) => ({
+        ...user,
+        password: await hashPassword(user.password),
+        createdAt: new Date(user.createdAt),
+      })),
+    ),
   });
   await prisma.memo.createMany({
     data: FAKE_MEMOS.map((memo) => ({
