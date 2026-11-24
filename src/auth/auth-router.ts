@@ -1,7 +1,7 @@
 // 라우터: 요청이 올바른지 검사하고, 문제가 없으면 서비스에 일을 맡겨요.
 // index.ts에서 app.use("/auth", authRouter)로 연결해서 주소 앞에 /auth가 붙어요.
 import { Router } from "express";
-import { createUser } from "@/auth/auth-service";
+import { createUser, login } from "@/auth/auth-service";
 import { isFilledString, sendError } from "@/http";
 
 // 프론트(lib/sign-up-schema.ts)와 같은 규칙이에요.
@@ -77,4 +77,32 @@ authRouter.post("/signup", async (req, res) => {
   }
 
   res.sendStatus(201);
+});
+
+// POST /auth/login  body: { email, password } → { token } (토큰 1개)
+authRouter.post("/login", async (req, res) => {
+  const { email, password } = req.body ?? {};
+
+  // 1. 두 칸이 모두 글자로 왔는지
+  if (!isFilledString(email) || !isFilledString(password)) {
+    return sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "이메일과 비밀번호를 입력해 주세요.",
+    );
+  }
+
+  // 검사를 통과했으면 서비스에서 로그인을 처리해요.
+  const token = await login({ email, password });
+  if (!token) {
+    return sendError(
+      res,
+      401,
+      "LOGIN_FAILED",
+      "이메일 또는 비밀번호가 맞지 않아요.",
+    );
+  }
+
+  res.json({ token });
 });

@@ -4,8 +4,7 @@ import { authRouter } from "@/auth/auth-router";
 import { prisma } from "@/db";
 import { isFilledString, sendError } from "@/http";
 import { toDateString, toMemoResponse, withUsername } from "@/memo-response";
-import { verifyPassword } from "@/password";
-import { createToken, readValidToken } from "@/token";
+import { readValidToken } from "@/token";
 
 const app = express();
 // 기본 3002. (3000은 프론트 Next.js, 3001은 프론트 프로젝트 안의 예전 서버)
@@ -16,7 +15,6 @@ const port = Number(process.env.PORT ?? 3002);
 const MAX_DB_INT = 2147483647;
 // 메모 목록 한 페이지에 보여 줄 개수
 const MEMO_LIMIT = 15;
-const TOKEN_EXPIRES_IN_MS = 24 * 60 * 60 * 1000; // 하루
 
 // CORS 화이트리스트: 이 서버에 요청을 보낼 수 있는 프론트 주소(출처)
 // 프론트(3000)와 이 서버(3002)는 포트가 달라서 "다른 출처"예요.
@@ -175,34 +173,7 @@ app.delete("/memos/:id", async (req, res) => {
 // 인증
 // ---------------------------------------------------------------------------
 
-// 회원가입(POST /auth/signup)은 src/auth/auth-router.ts에 있어요.
-
-// POST /login  body: { email, password } → { token }
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body ?? {};
-  if (!isFilledString(email) || !isFilledString(password)) {
-    return sendError(
-      res,
-      400,
-      "VALIDATION_ERROR",
-      "이메일과 비밀번호를 입력해 주세요.",
-    );
-  }
-
-  // DB에는 암호화된 비밀번호가 있어서 ===로 비교할 수 없어요. bcrypt로 비교해요.
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !(await verifyPassword(password, user.password))) {
-    return sendError(
-      res,
-      401,
-      "LOGIN_FAILED",
-      "이메일 또는 비밀번호가 맞지 않아요.",
-    );
-  }
-
-  const expiresAt = new Date(Date.now() + TOKEN_EXPIRES_IN_MS);
-  res.json({ token: createToken(user.id, expiresAt) });
-});
+// 회원가입(POST /auth/signup)과 로그인(POST /auth/login)은 src/auth/auth-router.ts에 있어요.
 
 // GET /me  header: Authorization: Bearer <token> → 내 정보 (비밀번호 제외)
 app.get("/me", async (req, res) => {
