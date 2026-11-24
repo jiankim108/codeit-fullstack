@@ -2,5 +2,8 @@ node_modules/
 dist/
 .env
 .env.*
+!.env.example
+# Prisma가 만들어 주는 코드 (npm install / prisma generate 때 다시 생겨요)
+src/generated/
 *.log
 .DS_Store

@@ -9,6 +9,10 @@ Express 5 + TypeScript 백엔드 프로젝트 (메모 서비스).
 - `npm start` — 빌드 결과(`dist/index.js`) 실행
 - `npm run typecheck` — 타입 검사만 수행
 - `npm run format` / `npm run format:check` — Prettier 포맷 적용 / 검사
+- `npm run db:migrate` — `prisma/schema.prisma` 변경을 DB에 반영 (마이그레이션 생성)
+- `npm run db:seed` — `fake-database.ts` 데이터로 DB 초기화
+- `npm run db:reset` — DB를 비우고 마이그레이션 + 시드 다시 실행
+- `npm run db:studio` — 브라우저에서 DB 보기/수정
 
 작업을 마치면 `npm run typecheck`와 `npm run format:check`가 통과하는지 확인한다.
 
@@ -16,7 +20,10 @@ Express 5 + TypeScript 백엔드 프로젝트 (메모 서비스).
 
 - `src/index.ts` — 앱 진입점
 - `src/types.ts` — 공용 타입 (`UserType`, `MemoRecordType`)
-- `src/fake-database.ts` — 인메모리 가짜 데이터 (`FAKE_USERS`, `FAKE_MEMOS`). 실제 DB 없음.
+- `src/db.ts` — Prisma 클라이언트 (`prisma`). PostgreSQL 접속 주소는 `.env`의 `DATABASE_URL` (`.env.example` 참고)
+- `src/fake-database.ts` — 시드용 데이터 (`FAKE_USERS`, `FAKE_MEMOS`). `prisma/seed.ts`가 DB에 넣는다.
+- `src/generated/prisma/` — Prisma가 생성하는 코드. 직접 수정하지 않고 git에도 올리지 않는다 (`npm install` 시 `prisma generate`로 생성).
+- `prisma/schema.prisma` — DB 모델 (`User`, `Memo`), `prisma/migrations/` — 마이그레이션 기록
 
 ## 코드 규칙
 
