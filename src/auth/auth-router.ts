@@ -79,7 +79,7 @@ authRouter.post("/signup", async (req, res) => {
   res.sendStatus(201);
 });
 
-// POST /auth/login  body: { email, password } → { token } (JWT 액세스 토큰 1개, 15초 뒤 만료)
+// POST /auth/login  body: { email, password } → { token } (JWT 액세스 토큰 1개, 10분 뒤 만료)
 authRouter.post("/login", async (req, res) => {
   const { email, password } = req.body ?? {};
 

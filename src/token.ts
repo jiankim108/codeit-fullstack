@@ -5,8 +5,8 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
-// 연습용으로 아주 짧게 15초. 실제 서비스는 보통 15분~1시간이에요.
-const ACCESS_TOKEN_EXPIRES_IN = "15s";
+// 10분. ("10m" = 10분, "15s" = 15초, "1h" = 1시간처럼 쓸 수 있어요.)
+const ACCESS_TOKEN_EXPIRES_IN = "10m";
 
 const getSecret = () => {
   const secret = process.env.JWT_SECRET;

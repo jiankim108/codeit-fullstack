@@ -44,7 +44,7 @@ export const login = async ({ email, password }: LoginInput) => {
     return null;
   }
 
-  // JWT 액세스 토큰 1개 (15초 뒤 만료)
+  // JWT 액세스 토큰 1개 (10분 뒤 만료)
   return createAccessToken(user.id);
 };
 
