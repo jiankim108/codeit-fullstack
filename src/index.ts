@@ -1,9 +1,10 @@
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
+import { authRouter } from "@/auth/auth-router";
 import { prisma } from "@/db";
+import { isFilledString, sendError } from "@/http";
 import { toDateString, toMemoResponse, withUsername } from "@/memo-response";
 import { createToken, readValidToken } from "@/token";
-import { ErrorType } from "@/types";
 
 const app = express();
 // 기본 3002. (3000은 프론트 Next.js, 3001은 프론트 프로젝트 안의 예전 서버)
@@ -35,15 +36,8 @@ app.use(
 );
 app.use(express.json());
 
-// 에러 응답은 항상 { type, message } 모양으로 보내요.
-const sendError = (
-  res: Response,
-  status: number,
-  type: ErrorType,
-  message: string,
-) => {
-  res.status(status).json({ type, message });
-};
+// /auth로 시작하는 요청은 auth 라우터가 처리해요. (예: POST /auth/signup)
+app.use("/auth", authRouter);
 
 // 숫자로 바꿔요. DB에 있을 수 없는 값(abc, 0, 너무 큰 수)이면 null
 const parseId = (value: unknown) => {
@@ -51,9 +45,6 @@ const parseId = (value: unknown) => {
   if (!Number.isInteger(id) || id < 1 || id > MAX_DB_INT) return null;
   return id;
 };
-
-const isFilledString = (value: unknown): value is string =>
-  typeof value === "string" && value.trim() !== "";
 
 // DB 작업은 시간이 걸려서 await로 기다려요. 그래서 핸들러가 async예요.
 
@@ -183,30 +174,7 @@ app.delete("/memos/:id", async (req, res) => {
 // 인증
 // ---------------------------------------------------------------------------
 
-// POST /signup  body: { email, password, username } → 회원가입 (201)
-app.post("/signup", async (req, res) => {
-  const { email, password, username } = req.body ?? {};
-  if (
-    !isFilledString(email) ||
-    !isFilledString(password) ||
-    !isFilledString(username)
-  ) {
-    return sendError(
-      res,
-      400,
-      "VALIDATION_ERROR",
-      "이메일, 비밀번호, 이름을 모두 입력해 주세요.",
-    );
-  }
-
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return sendError(res, 409, "DUPLICATE_EMAIL", "이미 가입된 이메일이에요.");
-  }
-
-  await prisma.user.create({ data: { email, password, username } });
-  res.sendStatus(201);
-});
+// 회원가입(POST /auth/signup)은 src/auth/auth-router.ts에 있어요.
 
 // POST /login  body: { email, password } → { token }
 app.post("/login", async (req, res) => {
