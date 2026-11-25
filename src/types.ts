@@ -31,8 +31,6 @@ export type MemoPageType = {
 export type ErrorType =
   | "VALIDATION_ERROR"
   | "NOT_FOUND"
-  | "DUPLICATE_EMAIL"
-  | "LOGIN_FAILED"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
   | "SERVER_ERROR";
