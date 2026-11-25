@@ -1,11 +1,11 @@
--- Better Auth로 인증을 옮기는 마이그레이션
--- 1. User에 Better Auth가 쓰는 칸을 추가해요.
--- 2. Session, Account, Verification 테이블을 만들어요.
--- 3. 기존 사용자의 비밀번호(bcrypt 해시)를 Account로 옮겨요. → 기존 비밀번호로 그대로 로그인할 수 있어요.
--- 4. User의 password 칸을 지워요.
+-- Better Auth 마이그레이션
+-- - User: password 칸을 없애고 Better Auth가 쓰는 칸(emailVerified, image, updatedAt)을 추가해요.
+-- - Session, Account(비밀번호 저장), Verification 테이블을 만들어요.
+-- 기존 데이터는 옮기지 않아요. 적용 후 npm run db:seed로 시드 사용자를 다시 넣어요.
 
 -- AlterTable
-ALTER TABLE "User" ADD COLUMN     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+ALTER TABLE "User" DROP COLUMN "password",
+ADD COLUMN     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "image" TEXT,
 ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
@@ -72,10 +72,3 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId"
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- 기존 비밀번호를 Account로 옮기기 (이메일+비밀번호 로그인 = providerId "credential")
-INSERT INTO "Account" ("accountId", "providerId", "password", "userId", "createdAt", "updatedAt")
-SELECT "id"::TEXT, 'credential', "password", "id", "createdAt", CURRENT_TIMESTAMP
-FROM "User";
-
--- AlterTable
-ALTER TABLE "User" DROP COLUMN "password";
