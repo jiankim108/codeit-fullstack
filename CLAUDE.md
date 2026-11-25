@@ -20,7 +20,7 @@ Express 5 + TypeScript 백엔드 프로젝트 (메모 서비스).
 ## 구조
 
 - `src/index.ts` — 앱 진입점, 메모 라우트 (`/memos`). `/api/auth/*`는 Better Auth 핸들러에 연결한다 (`express.json()`보다 먼저).
-- `src/auth/auth.ts` — Better Auth 설정 (Prisma 어댑터, 숫자 id `generateId: "serial"`, `name` → `username` 칸, bcrypt 해시, 회원가입 검증 훅). 세션은 쿠키로 주고받는다.
+- `src/auth/auth.ts` — Better Auth 설정 (Prisma 어댑터, 숫자 id `generateId: "serial"`, `name` → `username` 칸, bcrypt 해시, 회원가입 검증 훅, 구글 로그인 — `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`이 있을 때만 켜짐). 세션은 쿠키로 주고받는다.
 - `src/auth/require-auth.ts` — 로그인 필요 미들웨어 `requireAuth`, 로그인 사용자 id는 `getUserId(res)`로 꺼낸다.
 - `src/cors.ts` — CORS 화이트리스트(`ALLOWED_ORIGINS`). Better Auth `trustedOrigins`도 같은 목록을 쓴다.
 - `src/password.ts` — bcrypt 해시/검증 (Better Auth가 사용)

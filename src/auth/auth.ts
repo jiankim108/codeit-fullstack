@@ -66,6 +66,25 @@ export const auth = betterAuth({
     },
   },
 
+  // 소셜 로그인 (구글)
+  // - 구글 클라우드 콘솔에서 OAuth 클라이언트를 만들고 .env에 키를 넣어요. (.env.example 참고)
+  // - 키가 없으면 구글 로그인만 꺼지고, 이메일 로그인은 그대로 동작해요.
+  // - 같은 이메일로 이미 가입한 사용자가 구글로 로그인하면 같은 계정에 연결돼요.
+  //   (구글이 이메일 인증을 마친 계정이라서 Better Auth가 자동으로 연결해요.)
+  // - 프론트 사용법: authClient.signIn.social({ provider: "google", callbackURL: "http://localhost:3000/memos" })
+  socialProviders: {
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            // 매번 구글 계정을 고를 수 있게 해요. (여러 계정을 쓸 때 편해요.)
+            prompt: "select_account" as const,
+          },
+        }
+      : {}),
+  },
+
   // 회원가입 요청이 Better Auth에 들어가기 전에 우리 규칙으로 한 번 더 검사해요.
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
