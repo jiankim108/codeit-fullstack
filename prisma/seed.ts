@@ -6,17 +6,27 @@ import { FAKE_MEMOS, FAKE_USERS } from "../src/fake-database";
 import { hashPassword } from "../src/password";
 
 const main = async () => {
-  // 지우고 다시 넣어요. 메모가 사용자를 가리키니까 메모부터 지워요.
+  // 지우고 다시 넣어요. 메모·세션·계정이 사용자를 가리키니까 그것들부터 지워요.
   await prisma.memo.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.account.deleteMany();
   await prisma.user.deleteMany();
 
-  // 시드 사용자 비밀번호도 암호화해서 넣어야 로그인할 수 있어요.
+  // 사용자 정보는 User에, 비밀번호는 Account에 넣어요. (Better Auth 방식)
+  // 비밀번호는 암호화(bcrypt)해서 넣어야 로그인할 수 있어요.
   await prisma.user.createMany({
+    data: FAKE_USERS.map(({ password: _password, ...user }) => ({
+      ...user,
+      createdAt: new Date(user.createdAt),
+    })),
+  });
+  await prisma.account.createMany({
     data: await Promise.all(
       FAKE_USERS.map(async (user) => ({
-        ...user,
+        userId: user.id,
+        accountId: String(user.id),
+        providerId: "credential", // 이메일+비밀번호 로그인
         password: await hashPassword(user.password),
-        createdAt: new Date(user.createdAt),
       })),
     ),
   });

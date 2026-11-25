@@ -11,14 +11,72 @@ datasource db {
 }
 
 // 사용자 테이블
+// Better Auth가 읽고 쓰는 칸: email, username(Better Auth에서는 name), emailVerified, image, createdAt, updatedAt
+// 비밀번호는 여기 없어요. Better Auth는 비밀번호를 Account 테이블에 따로 저장해요.
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique // 같은 이메일로 두 번 가입할 수 없어요.
-  password  String
-  username  String
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  email         String   @unique // 같은 이메일로 두 번 가입할 수 없어요.
+  username      String
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
-  memos Memo[] // 이 사용자가 쓴 메모들 (1:N 관계)
+  memos    Memo[] // 이 사용자가 쓴 메모들 (1:N 관계)
+  sessions Session[]
+  accounts Account[]
+}
+
+// 로그인 세션 (Better Auth가 관리해요)
+// 로그인하면 한 줄이 생기고, 브라우저 쿠키에 token이 저장돼요. 로그아웃하면 지워져요.
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// 로그인 수단 (Better Auth가 관리해요)
+// 이메일+비밀번호 로그인은 providerId가 "credential"이고, password에 bcrypt 해시가 들어가요.
+// 나중에 구글 로그인 등을 붙이면 providerId가 "google"인 줄이 추가돼요.
+model Account {
+  id                    Int       @id @default(autoincrement())
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// 이메일 인증, 비밀번호 재설정 같은 일회용 값 (Better Auth가 관리해요)
+model Verification {
+  id         Int      @id @default(autoincrement())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
 }
 
 // 메모 테이블

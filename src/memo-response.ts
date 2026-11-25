@@ -2,7 +2,7 @@ import { MemoType } from "@/types";
 
 // DB의 날짜(Date) → 프론트에서 쓰는 문자열 "2026-11-09T21:30:00" (내 컴퓨터 시간 기준)
 // 프론트는 이 문자열을 잘라서(slice) 날짜와 시간을 보여 줘요.
-export const toDateString = (date: Date) => {
+const toDateString = (date: Date) => {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
     .toISOString()
     .slice(0, 19);
