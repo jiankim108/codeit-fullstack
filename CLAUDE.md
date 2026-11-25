@@ -19,14 +19,17 @@ Express 5 + TypeScript 백엔드 프로젝트 (메모 서비스).
 
 ## 구조
 
-- `src/index.ts` — 앱 진입점, 모든 라우트 (`/memos`, `/signup`, `/login`, `/me`). CORS 화이트리스트(`ALLOWED_ORIGINS`)도 여기 있다.
+- `src/index.ts` — 앱 진입점, 메모 라우트 (`/memos`). `/api/auth/*`는 Better Auth 핸들러에 연결한다 (`express.json()`보다 먼저).
+- `src/auth/auth.ts` — Better Auth 설정 (Prisma 어댑터, 숫자 id `generateId: "serial"`, `name` → `username` 칸, bcrypt 해시, 회원가입 검증 훅). 세션은 쿠키로 주고받는다.
+- `src/auth/require-auth.ts` — 로그인 필요 미들웨어 `requireAuth`, 로그인 사용자 id는 `getUserId(res)`로 꺼낸다.
+- `src/cors.ts` — CORS 화이트리스트(`ALLOWED_ORIGINS`). Better Auth `trustedOrigins`도 같은 목록을 쓴다.
+- `src/password.ts` — bcrypt 해시/검증 (Better Auth가 사용)
 - `src/types.ts` — 공용 타입 (`UserType`, `MemoRecordType`, `MemoType`, `MemoPageType`, `ErrorResponseType` 등)
 - `src/memo-response.ts` — DB 메모 → 응답 모양 변환 (`createdAt`은 로컬 시간 문자열 `YYYY-MM-DDTHH:mm:ss`, `username` 포함)
-- `src/token.ts` — 연습용 로그인 토큰 (서명 없는 base64)
 - `src/db.ts` — Prisma 클라이언트 (`prisma`). PostgreSQL 접속 주소는 `.env`의 `DATABASE_URL` (`.env.example` 참고)
 - `src/fake-database.ts` — 시드용 데이터 (`FAKE_USERS`, `FAKE_MEMOS`). `prisma/seed.ts`가 DB에 넣는다.
 - `src/generated/prisma/` — Prisma가 생성하는 코드. 직접 수정하지 않고 git에도 올리지 않는다 (`npm install` 시 `prisma generate`로 생성).
-- `prisma/schema.prisma` — DB 모델 (`User`, `Memo`), `prisma/migrations/` — 마이그레이션 기록
+- `prisma/schema.prisma` — DB 모델 (`User`, `Memo`, Better Auth용 `Session`, `Account`(비밀번호 저장), `Verification`), `prisma/migrations/` — 마이그레이션 기록
 
 ## 코드 규칙
 

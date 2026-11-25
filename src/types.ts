@@ -26,9 +26,6 @@ export type MemoPageType = {
   nextCursor: number | null;
 };
 
-// 비밀번호를 뺀 사용자 정보 (GET /me 응답)
-export type PublicUserType = Omit<UserType, "password">;
-
 // 에러 응답은 항상 { type, message } 모양이에요.
 // 프론트는 type을 보고 어떤 에러인지 구분해요.
 export type ErrorType =
@@ -37,6 +34,7 @@ export type ErrorType =
   | "DUPLICATE_EMAIL"
   | "LOGIN_FAILED"
   | "UNAUTHORIZED"
+  | "FORBIDDEN"
   | "SERVER_ERROR";
 
 export type ErrorResponseType = {
